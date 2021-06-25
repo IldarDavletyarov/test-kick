@@ -20,7 +20,8 @@
       button.sell(@click="sell" :disabled="isActionsDisable") SELL
 </template>
 <script>
-import InputNumber from './InputNumber.vue'
+// @todo: Fix paths with alias: avoid ../
+import InputNumber from './InputNumber.vue';
 import PocketPurse from '../icons/pocket-purse.vue';
 
 import { transforms } from '../utils';
@@ -46,7 +47,7 @@ const buyApi = async (payload) => {
 const sellApi = async (payload) => {
     await new Promise((resolve) => {
     setTimeout(() => {
-      console.log('sell your kiks 🥺');
+      console.log('sell your kicks 🥺');
       resolve();
     }, 500);
   });
