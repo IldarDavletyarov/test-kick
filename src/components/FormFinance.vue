@@ -134,7 +134,9 @@ export default {
       }
 
       if (this.total === '') {
-        this.total = '';
+        this.$withoutWatchers(() => { // awoid trigger amount watcher
+          this.amount = '';
+        });
         return;
       }
 
