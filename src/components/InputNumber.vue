@@ -1,5 +1,5 @@
 <template lang="pug">
-.input-number
+.input-number(@keyup.up="onUp" @keyup.down="onDown")
   .label {{ label }}
   input(:placeholder="placeholder" :value="value" @input="onInput")
   .rate {{ rate }}
@@ -15,16 +15,17 @@ import ChevronDown from '../icons/chevron-down.vue';
 
 const MAX_FRACTION_DIGITS = 8;
 
-const transformCommaToDot = (v) => v.replace(',', '.');
+const SEPARATOR = '.';
+
+const transformCommaToDot = (v) => v.replace(',', SEPARATOR);
 
 const transformLimitFractionDigits = (v) => {
-  const separator = '.';
-  if (!v.includes(separator)) {
+  if (!v.includes(SEPARATOR)) {
     return v;
   }
-  let split = v.split(separator);
+  let split = v.split(SEPARATOR);
   let fraction = split[split.length - 1].slice(0, MAX_FRACTION_DIGITS);
-  return [split.slice(0, split.length - 1), fraction].join(separator);
+  return [split.slice(0, split.length - 1), fraction].join(SEPARATOR);
 }
 
 const transforms = [
@@ -33,10 +34,16 @@ const transforms = [
 ];
 
 const isNumber = (str) => {
-  if (typeof str != 'string') return false // we only process strings!  
-  return !isNaN(str) && // use type coercion to parse the _entirety_ of the string (`parseFloat` alone does not do this)...
-         !isNaN(parseFloat(str)) // ...and ensure strings of whitespace fail
+  if (typeof str != 'string') return false;
+  return !isNaN(str) && !isNaN(parseFloat(str))
 }
+
+const isPositive = (v) => +v >= 0;
+
+const validations = [
+  isNumber,
+  isPositive,
+];
 
 export default {
   components: {
@@ -61,16 +68,31 @@ export default {
       default: '',
     },
   },
+  computed: {
+    fractionDigits() {
+      const split = this.value.toString().split(SEPARATOR);
+      return split[split.length - 1].length;
+    },
+  },
   methods: {
+    onUp() {
+      
+    },
+    onDown() {
+
+    },
     onInput(event) {
       let value = event.target.value || '';
+      console.log(value);
 
-      if (!isNumber(value)) {
-        event.target.value = this.value; // previous valid number
+      if(value === '') {
+        this.$emit('input', value);
         return;
       }
-      if (typeof value === 'number') {
-        console.log(value, this.value);
+
+      if (!validations.map(v => v(value)).every(v => v)) {
+        event.target.value = this.value; // previous valid number
+        return;
       }
 
       transforms.forEach(t => {
