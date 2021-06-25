@@ -1,11 +1,27 @@
 <template lang="pug">
 .form-finance
-  input-number(label="Price" rate="ETH" v-model="price")
-  input-number(label="Amount" rate="KICK" v-model="amount")
-  input-number(label="Total ~" rate="ETH" v-model="total")
+  .header
+    pocket-purse
+    .finance
+      .line.kick
+        .value {{ finance.kick }}
+        .label KICK
+      .line.value
+        .value {{ finance.value }}
+        .label {{ rate }}
+  .content      
+    .inputs
+      input-number(label="Price" :rate="rate" v-model="price")
+      input-number(label="Amount" rate="KICK" v-model="amount")
+      input-number(label="Total ~" :rate="rate" v-model="total")
+  .footer
+    .actions
+      button.buy BUY
+      button.sell SELL
 </template>
 <script>
 import InputNumber from './InputNumber.vue'
+import PocketPurse from '../icons/pocket-purse.vue';
 
 import { transforms } from '../utils';
 import WithoutWatcherMixin from '../utils/withoutWatcherMixin';
@@ -13,11 +29,13 @@ import WithoutWatcherMixin from '../utils/withoutWatcherMixin';
 export default {
   components: {
     InputNumber,
+    PocketPurse,
   },
   data: () => ({
     price: '',
     amount: '',
     total: '',
+    rate: 'ETH',
 
   }),
   mixins: [WithoutWatcherMixin],
@@ -30,6 +48,11 @@ export default {
     },
     total() {
       this.updateAmount();
+    },
+  },
+  computed: {
+    finance() {
+      return this.$store.state.finance;
     },
   },
   methods: {
@@ -80,8 +103,40 @@ export default {
 <style lang="stylus">
 .form-finance
   width 350px
-  .input-number
-    width 300px
-    &:not(:last-child)
-      margin-bottom 12px
+  .header
+    display flex
+    width 100%
+    margin-bottom 16px
+    .finance .line
+      display flex
+      margin-left 16px
+      div:not(:first-child)
+        margin-left 6px
+  .content
+    margin-bottom 24px  
+    .inputs
+      .input-number
+        width 350px
+        &:not(:last-child)
+          margin-bottom 12px
+  .footer
+    width 100%
+    .actions
+      display grid
+      grid-template-columns 2fr 1fr
+      grid-column-gap 12px
+      width 100%
+
+      button
+        border-radius 4px
+        height 36px
+        font-size 16px
+        &.buy
+          background #20ab00
+          border 2px solid #20ab00
+          color #fff
+        &.sell
+          background #fff
+          border 2px solid red
+          color red
 </style>
