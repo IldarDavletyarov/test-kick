@@ -4,9 +4,9 @@
   input(:placeholder="placeholder" :value="value" @input="onInput" @keyup.up.prevent @keyup.down.prevent)
   .rate {{ rate }}
   .arrows
-    .up
+    .up(@click.stop="onUp")
       chevron-up
-    .down
+    .down(@click.stop="onDown" :class="{ 'disable': isDownDisable }")
       chevron-down
 </template>
 <script>
@@ -17,9 +17,9 @@ const MAX_FRACTION_DIGITS = 8;
 
 const SEPARATOR = '.';
 
-const transformCommaToDot = (v) => v.replace(',', SEPARATOR);
+const commaToDot = (v) => v.replace(',', SEPARATOR);
 
-const transformLimitFractionDigits = (v) => {
+const limitFractionDigits = (v) => {
   if (!v.includes(SEPARATOR)) {
     return v;
   }
@@ -29,20 +29,32 @@ const transformLimitFractionDigits = (v) => {
 }
 
 const transforms = [
-  transformCommaToDot,
-  transformLimitFractionDigits,
+  commaToDot,
+  limitFractionDigits,
 ];
+
+const getFractions = (value) => {
+  const valueString = value.toString();
+  if (!valueString.includes(SEPARATOR)) {
+    return 0;
+  }
+  const split = valueString.split(SEPARATOR);
+  return split[split.length - 1].length;
+}
 
 const isNumber = (str) => {
   if (typeof str != 'string') return false;
-  return !isNaN(str) && !isNaN(parseFloat(str))
+  return !isNaN(str) && !isNaN(parseFloat(str)) || str === ''
 }
 
 const isPositive = (v) => +v >= 0;
 
+const isOnLimitFraction = (v) => getFractions(v) <= MAX_FRACTION_DIGITS
+
 const validations = [
   isNumber,
   isPositive,
+  isOnLimitFraction,
 ];
 
 export default {
@@ -70,37 +82,52 @@ export default {
   },
   computed: {
     fractionDigits() {
-      const valueString = this.value.toString();
-      if (!valueString.includes(SEPARATOR)) {
-        return 0;
-      }
-      const split = valueString.split(SEPARATOR);
-      return split[split.length - 1].length;
+      return getFractions(this.value);
     },
     fractionTick() {
       if (this.fractionDigits === 0) {
         return 1;
       }
 
-      return +(`0.${new Array(this.fractionDigits - 1).fill(0).join('')}1`);
-    }
+      return this.getTickByFractions(this.fractionDigits);
+    },
+    isDownDisable() {
+      console.log(this.value);
+      return ['', '0', 0].find(v => this.value);
+    },
   },
   methods: {
+    update(newValue) {
+      if (!validations.map(v => v(newValue)).every(v => v)) {
+        return;
+      }
+      this.$emit('input', newValue);
+    },
+    getTickByFractions(fractions) {
+      return +(`0.${new Array(fractions - 1).fill(0).join('')}1`);
+    },
     onUp() {
       console.log(this.value, this.fractionDigits);
       const newValue = (+this.value + this.fractionTick).toFixed(this.fractionDigits);
-      this.$emit('input', newValue);
+      this.update(newValue);
     },
     onDown() {
-      const newValue = (+this.value - this.fractionTick).toFixed(this.fractionDigits);
-      this.$emit('input', newValue);
+      if (this.isDownDisable) {
+        return;
+      }
+      let value = +this.value;
+      if (value === this.fractionTick) { // value like 0.0..01
+        value = (+this.value - this.getTickByFractions(this.fractionDigits + 1)).toFixed(this.fractionDigits + 1);
+      } else {
+        value = (+this.value - this.fractionTick).toFixed(this.fractionDigits);
+      }
+      this.update(value);
     },
     onInput(event) {
       let value = event.target.value || '';
-      console.log(value);
 
       if(value === '') {
-        this.$emit('input', value);
+        this.update(value);
         return;
       }
 
@@ -113,7 +140,7 @@ export default {
         value = t(value);
       });
       event.target.value = value;
-      this.$emit('input', value);
+      this.update(value);
     },
   },
 };
@@ -152,6 +179,8 @@ export default {
       width 24px
       box-sizing border-box
       cursor pointer
+      &.disable
+        background #e0e0e0  
     .up
       border-bottom 1px solid #d0d0d0
 </style>
