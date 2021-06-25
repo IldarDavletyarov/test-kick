@@ -1,5 +1,5 @@
 <template lang="pug">
-.input-number(@keyup.up="onUp" @keyup.down="onDown")
+.input-number(@keyup.up="onUp" @keyup.down="onDown" tabindex="0")
   .label {{ label }}
   input(:placeholder="placeholder" :value="value" @input="onInput" @keyup.up.prevent @keyup.down.prevent)
   .rate {{ rate }}
@@ -64,7 +64,6 @@ export default {
       return +(`0.${new Array(fractions - 1).fill(0).join('')}1`);
     },
     onUp() {
-      console.log(this.value, this.fractionDigits);
       const newValue = (+this.value + this.fractionTick).toFixed(this.fractionDigits);
       this.update(newValue);
     },
