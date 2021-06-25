@@ -1,5 +1,5 @@
 <template lang="pug">
-.form-finance
+.form-finance(@keyup.enter="buy" @keyup.delete="sell")
   .header
     pocket-purse
     .finance
@@ -31,13 +31,25 @@ let mockFinance = {
   eth: 100000,
 };
 
-const buyApi = (payload) => {
+const buyApi = async (payload) => {
+  await new Promise((resolve) => {
+    setTimeout(() => {
+      console.log('buy kicks 😈');
+      resolve();
+    }, 500);
+  });
   mockFinance = { kick: mockFinance.kick + +payload.kick, eth: mockFinance.eth - +payload.eth };
 
   return mockFinance;
 };
 
-const sellApi = (payload) => {
+const sellApi = async (payload) => {
+    await new Promise((resolve) => {
+    setTimeout(() => {
+      console.log('sell your kiks 🥺');
+      resolve();
+    }, 500);
+  });
   mockFinance = { kick: mockFinance.kick - +payload.kick, eth: +mockFinance.eth + +payload.eth };
 
   return mockFinance;
@@ -81,18 +93,18 @@ export default {
     this.$store.dispatch('updateFinance', actualFinance());
   },
   methods: {
-    buy() {
+    async buy() {
       if (this.isActionsDisable) {
         return;
       }
-      const newFinance = buyApi({ kick: this.amount, eth: this.total });
+      const newFinance = await buyApi({ kick: this.amount, eth: this.total, price: this.price, });
       this.$store.dispatch('updateFinance', newFinance);
     },
-    sell() {
+    async sell() {
       if (this.isActionsDisable) {
         return;
       }
-      const newFinance = sellApi({ kick: this.amount, eth: this.total});
+      const newFinance = await sellApi({ kick: this.amount, eth: this.total, price: this.price });
       this.$store.dispatch('updateFinance', newFinance);
     },
     updateTotal() {
