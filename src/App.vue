@@ -1,15 +1,15 @@
 <template lang="pug">
 #app
-  input-number(label="Price" rate="ETH")
+  form-finance
 </template>
 
 <script>
-import InputNumber from './components/InputNumber.vue'
+import FormFinance from './components/FormFinance.vue'
 
 export default {
   name: 'App',
   components: {
-    InputNumber,
+    FormFinance,
   }
 }
 </script>
