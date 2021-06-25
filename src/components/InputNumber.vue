@@ -1,7 +1,7 @@
 <template lang="pug">
 .input-number(@keyup.up="onUp" @keyup.down="onDown")
   .label {{ label }}
-  input(:placeholder="placeholder" :value="value" @input="onInput")
+  input(:placeholder="placeholder" :value="value" @input="onInput" @keyup.up.prevent @keyup.down.prevent)
   .rate {{ rate }}
   .arrows
     .up
@@ -70,16 +70,30 @@ export default {
   },
   computed: {
     fractionDigits() {
-      const split = this.value.toString().split(SEPARATOR);
+      const valueString = this.value.toString();
+      if (!valueString.includes(SEPARATOR)) {
+        return 0;
+      }
+      const split = valueString.split(SEPARATOR);
       return split[split.length - 1].length;
     },
+    fractionTick() {
+      if (this.fractionDigits === 0) {
+        return 1;
+      }
+
+      return +(`0.${new Array(this.fractionDigits - 1).fill(0).join('')}1`);
+    }
   },
   methods: {
     onUp() {
-      
+      console.log(this.value, this.fractionDigits);
+      const newValue = (+this.value + this.fractionTick).toFixed(this.fractionDigits);
+      this.$emit('input', newValue);
     },
     onDown() {
-
+      const newValue = (+this.value - this.fractionTick).toFixed(this.fractionDigits);
+      this.$emit('input', newValue);
     },
     onInput(event) {
       let value = event.target.value || '';
