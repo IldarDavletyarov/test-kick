@@ -13,49 +13,7 @@
 import ChevronUp from '../icons/chevron-up.vue';
 import ChevronDown from '../icons/chevron-down.vue';
 
-const MAX_FRACTION_DIGITS = 8;
-
-const SEPARATOR = '.';
-
-const commaToDot = (v) => v.replace(',', SEPARATOR);
-
-const limitFractionDigits = (v) => {
-  if (!v.includes(SEPARATOR)) {
-    return v;
-  }
-  let split = v.split(SEPARATOR);
-  let fraction = split[split.length - 1].slice(0, MAX_FRACTION_DIGITS);
-  return [split.slice(0, split.length - 1), fraction].join(SEPARATOR);
-}
-
-const transforms = [
-  commaToDot,
-  limitFractionDigits,
-];
-
-const getFractions = (value) => {
-  const valueString = value.toString();
-  if (!valueString.includes(SEPARATOR)) {
-    return 0;
-  }
-  const split = valueString.split(SEPARATOR);
-  return split[split.length - 1].length;
-}
-
-const isNumber = (str) => {
-  if (typeof str != 'string') return false;
-  return !isNaN(str) && !isNaN(parseFloat(str)) || str === ''
-}
-
-const isPositive = (v) => +v >= 0;
-
-const isOnLimitFraction = (v) => getFractions(v) <= MAX_FRACTION_DIGITS
-
-const validations = [
-  isNumber,
-  isPositive,
-  isOnLimitFraction,
-];
+import { validations, transforms, getFractions } from '../utils';
 
 export default {
   components: {
@@ -92,7 +50,6 @@ export default {
       return this.getTickByFractions(this.fractionDigits);
     },
     isDownDisable() {
-      console.log(this.value);
       return ['', '0', 0].find(v => this.value);
     },
   },
@@ -154,16 +111,23 @@ export default {
   border 1px solid #d0d0d0
   border-radius 2px
   .label
+  .rate
+    white-space nowrap
+    user-select none
+  .label
     color #d0d0d0
     margin-left 8px
   .rate
     color #c5c5c5
     margin-right 4px
+    margin-left 4px
   input
     -webkit-appearance none
     outline none
     border none
     text-align right
+    width 100%
+    font-size 18px
     &:-webkit-autofill
       background #fff !important
   .arrows
