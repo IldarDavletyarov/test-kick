@@ -6,8 +6,8 @@
       .line.kick
         .value {{ finance.kick }}
         .label KICK
-      .line.value
-        .value {{ finance.value }}
+      .line.eth
+        .value {{ finance.eth }}
         .label {{ rate }}
   .content      
     .inputs
@@ -16,8 +16,8 @@
       input-number(label="Total ~" :rate="rate" v-model="total")
   .footer
     .actions
-      button.buy BUY
-      button.sell SELL
+      button.buy(@click="buy" :disabled="isActionsDisable") BUY
+      button.sell(@click="sell" :disabled="isActionsDisable") SELL
 </template>
 <script>
 import InputNumber from './InputNumber.vue'
@@ -25,6 +25,25 @@ import PocketPurse from '../icons/pocket-purse.vue';
 
 import { transforms } from '../utils';
 import WithoutWatcherMixin from '../utils/withoutWatcherMixin';
+
+let mockFinance = {
+  kick: 1000,
+  eth: 100000,
+};
+
+const buyApi = (payload) => {
+  mockFinance = { kick: mockFinance.kick + +payload.kick, eth: mockFinance.eth - +payload.eth };
+
+  return mockFinance;
+};
+
+const sellApi = (payload) => {
+  mockFinance = { kick: mockFinance.kick - +payload.kick, eth: +mockFinance.eth + +payload.eth };
+
+  return mockFinance;
+};
+
+const actualFinance = () => mockFinance;
 
 export default {
   components: {
@@ -54,8 +73,28 @@ export default {
     finance() {
       return this.$store.state.finance;
     },
+    isActionsDisable() {
+      return [this.price, this.amount].some(v => v === '' || v === 0);
+    },
+  },
+  mounted() {
+    this.$store.dispatch('updateFinance', actualFinance());
   },
   methods: {
+    buy() {
+      if (this.isActionsDisable) {
+        return;
+      }
+      const newFinance = buyApi({ kick: this.amount, eth: this.total });
+      this.$store.dispatch('updateFinance', newFinance);
+    },
+    sell() {
+      if (this.isActionsDisable) {
+        return;
+      }
+      const newFinance = sellApi({ kick: this.amount, eth: this.total});
+      this.$store.dispatch('updateFinance', newFinance);
+    },
     updateTotal() {
       if (this.price === 0 || this.amount === 0) {
         this.total = 0;
@@ -131,12 +170,17 @@ export default {
         border-radius 4px
         height 36px
         font-size 16px
+        cursor pointer
         &.buy
           background #20ab00
-          border 2px solid #20ab00
           color #fff
+          &:disabled
+            background #156702
         &.sell
           background #fff
           border 2px solid red
           color red
+          &:disabled
+            color #961126
+            border-color #961126
 </style>

@@ -122,14 +122,12 @@ export default {
     margin-right 4px
     margin-left 4px
   input
-    -webkit-appearance none
+    appearance none
     outline none
     border none
     text-align right
     width 100%
     font-size 18px
-    &:-webkit-autofill
-      background #fff !important
   .arrows
     height 100%
     .up

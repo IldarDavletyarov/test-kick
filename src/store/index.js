@@ -7,7 +7,7 @@ export default new Vuex.Store({
   state: {
     finance: {
       kick: 0,
-      value: 0,
+      eth: 0,
     }
   },
   mutations: {
