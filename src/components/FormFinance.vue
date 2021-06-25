@@ -37,9 +37,9 @@ const buyApi = async (payload) => {
     setTimeout(() => {
       console.log('buy kicks 😈');
       resolve();
-    }, 500);
+    }, 100);
   });
-  mockFinance = { kick: mockFinance.kick + +payload.kick, eth: mockFinance.eth - +payload.eth };
+  mockFinance = { kick: mockFinance.kick + +payload.kick, eth: mockFinance.eth - payload.eth };
 
   return mockFinance;
 };
@@ -49,7 +49,7 @@ const sellApi = async (payload) => {
     setTimeout(() => {
       console.log('sell your kicks 🥺');
       resolve();
-    }, 500);
+    }, 100);
   });
   mockFinance = { kick: mockFinance.kick - +payload.kick, eth: +mockFinance.eth + +payload.eth };
 
@@ -124,7 +124,7 @@ export default {
       transforms.forEach(t => {
         total = t(total);
       });
-      this.$withoutWatchers(() => { // awoid trigger total watcher
+      this.$withoutWatchers(() => { // avoid trigger total watcher
         this.total = total;
       });
     },
@@ -135,7 +135,7 @@ export default {
       }
 
       if (this.total === '') {
-        this.$withoutWatchers(() => { // awoid trigger amount watcher
+        this.$withoutWatchers(() => { // avoid trigger amount watcher
           this.amount = '';
         });
         return;
@@ -147,7 +147,7 @@ export default {
         amount = t(amount);
       });
 
-      this.$withoutWatchers(() => { // awoid trigger amount watcher
+      this.$withoutWatchers(() => { // avoid trigger amount watcher
         this.amount = amount;
       });
     }
