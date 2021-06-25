@@ -109,7 +109,7 @@ export default {
   height 40px
   width min-content
   border 1px solid #d0d0d0
-  border-radius 2px
+  border-radius 4px
   .label
   .rate
     white-space nowrap
