@@ -12,6 +12,13 @@
 <script>
 import ChevronUp from '../icons/chevron-up.vue';
 import ChevronDown from '../icons/chevron-down.vue';
+
+const transformCommaToDot = (v) => v.replace(',', '.');
+
+const transforms = [
+  transformCommaToDot,
+];
+
 export default {
   components: {
     ChevronUp,
@@ -37,7 +44,11 @@ export default {
   },
   methods: {
     onInput(event) {
-      this.$emit('input', event.value);
+      let value = event.target.value || '';
+      transforms.forEach(t => {
+        value = t(value);
+      });
+      this.$emit('input', value);
     },
   },
 };
