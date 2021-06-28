@@ -13,7 +13,7 @@
 import ChevronUp from '../icons/chevron-up.vue';
 import ChevronDown from '../icons/chevron-down.vue';
 
-import { validations, transforms, getFractions } from '../utils';
+import { validations, transforms, getFractions, MAX_FRACTION_DIGITS } from '../utils';
 
 export default {
   components: {
@@ -43,6 +43,9 @@ export default {
       return getFractions(this.value);
     },
     fractionTick() {
+      if (this.value === '') {
+        return this.getTickByFractions(MAX_FRACTION_DIGITS);
+      }
       if (this.fractionDigits === 0) {
         return 1;
       }
@@ -64,7 +67,9 @@ export default {
       return +(`0.${new Array(fractions - 1).fill(0).join('')}1`);
     },
     onUp() {
-      const newValue = (+this.value + this.fractionTick).toFixed(this.fractionDigits);
+      const newValue = (+this.value + this.fractionTick).toFixed(this.value === ''
+      ? MAX_FRACTION_DIGITS
+      : this.fractionDigits);
       this.update(newValue);
     },
     onDown() {
