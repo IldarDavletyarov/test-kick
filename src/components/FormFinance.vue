@@ -100,12 +100,20 @@ export default {
     this.$store.dispatch('updateFinance', actualFinance());
   },
   methods: {
+    clearForm() {
+      this.$withoutWatchers(() => { // avoid trigger watchers
+        this.total = '';
+        this.amount = '';
+        this.price = '';
+      });
+    },
     async buy() {
       if (this.isActionsDisable || !this.isCanBuy) {
         return;
       }
       const newFinance = await buyApi({ kick: this.amount, eth: this.total, price: this.price, });
       this.$store.dispatch('updateFinance', newFinance);
+      this.clearForm();
     },
     async sell() {
       if (this.isActionsDisable || !this.isCanSell) {
@@ -113,6 +121,7 @@ export default {
       }
       const newFinance = await sellApi({ kick: this.amount, eth: this.total, price: this.price });
       this.$store.dispatch('updateFinance', newFinance);
+      this.clearForm();
     },
     updateTotal() {
       if (this.price === 0 || this.amount === 0) {
