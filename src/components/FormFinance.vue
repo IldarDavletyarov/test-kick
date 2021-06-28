@@ -144,6 +144,9 @@ export default {
       });
     },
     updateAmount() {
+      if (this.price === 0 || this.price === '') { // awoid Infinity amount without price
+        return;
+      }
       if (this.total === 0) {
         this.amount = 0;
         return;
