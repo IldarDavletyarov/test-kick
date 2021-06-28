@@ -1,5 +1,5 @@
 <template lang="pug">
-.form-finance(@keyup.enter="buy" @keyup.delete="sell")
+.form-finance(@keyup.enter="buy")
   .header
     pocket-purse
     .finance
@@ -16,8 +16,8 @@
       input-number(label="Total ~" :rate="rate" v-model="total")
   .footer
     .actions
-      button.buy(@click="buy" :disabled="isActionsDisable") BUY
-      button.sell(@click="sell" :disabled="isActionsDisable") SELL
+      button.buy(@click="buy" :disabled="isActionsDisable || !isCanBuy") BUY
+      button.sell(@click="sell" :disabled="isActionsDisable || !isCanSell") SELL
 </template>
 <script>
 // @todo: Fix paths with alias: avoid ../
@@ -89,20 +89,26 @@ export default {
     isActionsDisable() {
       return [this.price, this.amount].some(v => v === '' || v === 0);
     },
+    isCanBuy() {
+      return this.finance.eth - this.total >= 0;
+    },
+    isCanSell() {
+      return this.finance.kick - this.amount >= 0;
+    },
   },
   mounted() {
     this.$store.dispatch('updateFinance', actualFinance());
   },
   methods: {
     async buy() {
-      if (this.isActionsDisable) {
+      if (this.isActionsDisable || !this.isCanBuy) {
         return;
       }
       const newFinance = await buyApi({ kick: this.amount, eth: this.total, price: this.price, });
       this.$store.dispatch('updateFinance', newFinance);
     },
     async sell() {
-      if (this.isActionsDisable) {
+      if (this.isActionsDisable || !this.isCanSell) {
         return;
       }
       const newFinance = await sellApi({ kick: this.amount, eth: this.total, price: this.price });
